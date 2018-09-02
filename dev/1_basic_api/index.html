@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>WebGL.js</title>
+
+
+  <style>
+    * {
+      margin: 0;
+      box-sizing: border-box;
+    }
+
+    canvas {
+      position: absolute;
+    }
+  </style>
+</head>
+
+<body>
+
+  <canvas id="c"></canvas>
+
+<script language="x/vs" id="vert">
+  precision mediump float;
+
+  attribute vec3 position;
+  attribute vec3 vertNorm;
+
+  varying vec3 fragNormal;
+  varying vec3 fragPos;
+
+  uniform mat4 mWorld;
+  uniform mat4 mProj;
+  uniform mat4 mView;
+
+  void main(void) {
+    gl_Position = mProj * mView * mWorld * vec4(position, 1.0);
+    fragPos = vec3(mWorld * vec4(position, 1.0));
+    fragNormal = vertNorm;
+  }
+</script>
+
+<script language="x/frag" id="frag">
+  precision mediump float;
+
+  varying vec3 fragNormal;
+  varying vec3 fragPos;
+
+  const float lightIntensity = 1.0;
+  const vec3 lightPos = vec3(-20, 1.0, 1.0);
+  const vec3 lightColor = vec3(1.0, 1.0, 1.0);
+
+  void main(void) {
+    float ambientStrength = 0.2;
+    vec3 ambient = ambientStrength * vec3(0.0,1.0,1.0);
+
+    vec3 norm = normalize(fragNormal);
+    vec3 lightDir = normalize(lightPos - fragPos);
+
+    float diff = max(dot(norm, lightDir), 0.0);
+    vec3 diffuse = diff * (lightColor + lightIntensity);
+
+    vec3 result = (ambient + diffuse) * vec3(0.0,0.6, 1.0);
+    gl_FragColor = vec4(result,1.0);
+  }
+</script>
+
+  <script src="../../src/gl-matrix-min.js"></script>
+  <script src="../../src/Camera.js"></script>
+  <script src="../../src/WebGL.js"></script>
+  <script src="../../src/WebGL.Loader.js"></script>
+  <script src="../../src/WebGL.Model.js"></script>
+  <script src="./index.js"></script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>WebGL.js</title>
+  <style>
+    * {
+      margin: 0;
+      box-sizing: border-box;
+    }
+
+    canvas {
+      position: absolute;
+    }
+  </style>
+</head>
+
+<body>
+
+  <canvas id="c"></canvas>
+
+  <script language="x/vs" id="vert">
+    precision mediump float;
+
+    attribute vec3 position;
+    attribute vec3 color;
+    attribute vec3 vertNormal;
+    attribute vec2 aTexCoord;
+
+
+    uniform mat4 mWorld;
+    uniform mat4 mProj;
+    uniform mat4 mView;
+
+
+    varying vec2 fragTexCoord;
+    varying vec3 fragNormal;
+
+    void main(void) {
+      fragTexCoord = aTexCoord;
+      fragNormal = (mWorld * vec4(vertNormal, 0.0)).xyz;
+      gl_Position = mProj * mView * mWorld * vec4(position, 1.0);
+    }
+  </script>
+
+  <script language="x/frag" id="frag">
+  precision mediump float;
+
+  varying vec2 fragTexCoord;
+  varying vec3 fragNormal;
+
+  uniform sampler2D sampler;
+
+  struct Light {
+    vec3 ambient;
+    vec3 sun;
+    vec3 dir;
+  };
+
+  uniform Light light;
+
+  void main(void) {
+
+    vec4 texel = texture2D(sampler, fragTexCoord);
+
+    vec3 lightintensity = light.ambient + light.sun * max(dot(fragNormal, light.dir), 0.0);
+
+    gl_FragColor = vec4(texel.rgb * lightintensity, texel.a);
+  }
+  </script>
+
+  <script src="./src/gl-matrix-min.js"></script>
+  <script src="./src/Camera.js"></script>
+  <script src="./src/WebGL.js"></script>
+  <script src="./src/WebGL.Loader.js"></script>
+  <script src="./src/WebGL.Model.js"></script>
+  <script src="./index.js"></script>
+
+
+</body>
+
+</html>
