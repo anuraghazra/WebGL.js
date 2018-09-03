@@ -18,7 +18,6 @@ WebGL.Material = function(wgl, settings) {
 
   if(settings.diffuse instanceof HTMLImageElement) {
     this.diffuse = this.wgl.setupTexture(settings.diffuse, {});
-    console.log(this.diffuse)
   } else if (settings.diffuse instanceof WebGLTexture) {
     this.diffuse = settings.diffuse;
   }

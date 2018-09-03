@@ -95,16 +95,43 @@ WebGL.prototype.init = function (userdata) {
         this.shaders[i].vert = this.loadFile(this.shaders[i].path + this.shaders[i].vert, function (err, data) {
           if (err) return;
           if (data) {
-            that.shaders[i].vert = data.replace(/\s+\n/img, '\n');
+            // that.shaders[i].vert = data.replace(/\s+\n/img, '\n');
+            parseShaderDirective(data, that.shaders[i], that.shaders[i].path, 'vert')
           }
         });
-
+        
         this.shaders[i].frag = this.loadFile(this.shaders[i].path + this.shaders[i].frag, function (err, data) {
           if (err) return;
           if (data) {
-            that.shaders[i].frag = data.replace(/\s+\n/img, '\n');
+            // that.shaders[i].frag = data.replace(/\s+\n/img, '\n');
+            parseShaderDirective(data, that.shaders[i], that.shaders[i].path, 'frag');
           }
         });
+    }
+  }
+
+  // parse shader's include directive
+  function parseShaderDirective(str, shader, path, type) {
+    let lines = str.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].trim().match(/#include.*?;$/)) {
+        let found = lines[i];
+        found = found.replace(/;\s+/img, '');
+        let shaderUrl = found.replace(/;\s/img, '').substring('#include'.length+2, found.length-1);
+        console.log(shaderUrl);
+        that.loadFile(path + shaderUrl, function (err, data) {
+          if (err) return;
+          if (data) {
+            lines[i] = data;
+            let str = lines.join('\n');
+            let parsed = str.replace(/\s+\n/img, '\n');
+            shader[type] = parsed;
+          }
+        });
+      } else {
+        let parsed = str.replace(/\s+\n/img, '\n');
+        shader[type] = parsed;
+      }
     }
   }
 
