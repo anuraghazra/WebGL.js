@@ -115,7 +115,7 @@ window.onload = function () {
 
     function animate(time) {
       wgl.background();
-      wgl.setVariable(program.uniforms.uEyeView, wgl.camera.position)
+      wgl.setVariable(program.uniforms.uEyeView, wgl.cam.position)
       wgl.setVariable(program.uniforms.uView, wgl.uView);
       
       p2.setPosition([Math.cos(0.5*time/1000)*20, -4, 2]);
@@ -129,15 +129,15 @@ window.onload = function () {
       for (let i = 0; i < objpositions.length; i++) {
         robot.translate(objpositions[i]);
         robot.rotateZ(time/1000);
-        robot.render(program);
+        robot.render();
       }
       for (let i = 0; i < objpositions.length; i++) {
         teapot.translate([objpositions[i][0], -5, -5 ]);
         teapot.rotateZ(-time/1000);
-        teapot.render(program);
+        teapot.render();
       }
       
-      wgl.camera.doMovement(wgl.uView, time);
+      wgl.cam.doMovement(wgl.uView, time);
       requestAnimationFrame(animate);
     }
     

@@ -24,6 +24,8 @@ uniform Material material;
 
 // Lights
 #define NR_POINT_LIGHTS 20
+#define NR_SUN_LIGHTS 5
+
 struct PointLight {
   vec3 position;
   vec3 ambient;
@@ -41,7 +43,7 @@ struct DirLight {
   vec3 diffuse;
   vec3 specular;
 };
-uniform DirLight dirlight;
+uniform DirLight dirlight[NR_SUN_LIGHTS];
 
 
 // ============= Functions
@@ -61,8 +63,6 @@ vec3 initSpecular(vec3 tex) {
   }
   return tex;
 }
-
-// vec3 CalcLight()
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir) {
   vec3 diffuseTexture = initDiffuse(vec3(texture2D(material.diffuse, vTexCoord)));
@@ -113,9 +113,6 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 vFragPos, vec3 viewDir) 
   
   // attenuation
   float dist = length(light.position - vFragPos);
-  // if (dist > 2.0) {
-  //   return vec3(0.0);
-  // }
   float attenuation = 1.0 / (light.constant + light.linear * dist + light.quadratic * (dist * dist));
   
   // combine results
@@ -132,21 +129,21 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 vFragPos, vec3 viewDir) 
 // END Functions ============= >>
 
 void main() {
-
   vec3 norm = normalize(vNormal);
   vec3 viewDir = normalize(uEyeView - vFragPos);
-
+  
   vec3 result = vec3(0.0);
+
   if (material.shadeless == 1.0) {
     result = initDiffuse(vec3(texture2D(material.diffuse, vTexCoord)));
   } else {
-    // step-1 directional lighting
-    result = CalcDirLight(dirlight, norm, viewDir);
-    // step-2 point lights
+    // directional lighting
+    for(int i = 0; i < NR_SUN_LIGHTS; i++) {
+      result += CalcDirLight(dirlight[i], norm, viewDir);
+    }
+    // point lights
     for(int i = 0; i < NR_POINT_LIGHTS; i++) {
-      if (pointlights[i].diffuse.x > 0.0) {
-        result += CalcPointLight(pointlights[i], norm, vFragPos, viewDir);
-      }
+      result += CalcPointLight(pointlights[i], norm, vFragPos, viewDir);
     }
   }
 

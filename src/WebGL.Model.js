@@ -1,12 +1,11 @@
-
 /**
- * ! @extension WebGL.Model 
- * @class WebGL.Model()
+ * @class WebGL.Model
+ * @param {WebGL Context} engine 
+ * @param {object} settings 
  */
 WebGL.Model = function (engine, settings) {
   this.wgl = engine;
   this.settings = settings;
-  console.log(settings.data instanceof WebGL.Model);
 
   // raw data
   if (!(settings.data instanceof WebGL.Model)) {
@@ -40,8 +39,8 @@ WebGL.Model = function (engine, settings) {
   if (this.matsettings === undefined) { this.matsettings = {} };
 
   // buffers
+  // * buffer instance
   if ((settings.data instanceof WebGL.Model)) {
-    console.log(settings.data)
     this.vbo = settings.data.vbo;
     this.nbo = settings.data.nbo;
     this.ibo = settings.data.ibo;
@@ -54,6 +53,7 @@ WebGL.Model = function (engine, settings) {
       this.tbo = settings.data.tbo;
     }
   } else {
+    // * buffer create
     this.vbo = this.wgl.makeBuffer(this.wgl.gl.ARRAY_BUFFER, new Float32Array(vertices));
     this.nbo = this.wgl.makeBuffer(this.wgl.gl.ARRAY_BUFFER, new Float32Array(normals));
     this.ibo = this.wgl.makeBuffer(this.wgl.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices));
@@ -80,7 +80,6 @@ WebGL.Model = function (engine, settings) {
 
   
   this.name = (name == undefined) ? null : name;
-  
   mat4.translate(this.world, mat4.create(), this.pos);
   return this;
 }
@@ -152,9 +151,10 @@ WebGL.Model.prototype.enableAttribs = function (vpos, npos, tpos) {
 
 }
 
-WebGL.Model.prototype.clone = function() {
-  return new WebGL.Model(this.wgl, this.settings);
-}
+// WebGL.Model.prototype.clone = function() {
+//   return new WebGL.Model(this.wgl, this.settings);
+// }
+
 WebGL.Model.prototype.render = function (attrpos) {
   let program = this.program;
   this.wgl.gl.useProgram(program);
@@ -175,6 +175,7 @@ WebGL.Model.prototype.render = function (attrpos) {
   //cleanup
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
   gl.bindTexture(gl.TEXTURE_2D, null);
+  // this.wgl.gl.useProgram(null);
 }
 WebGL.Model.prototype.clean = function() {
   this.material.clean();

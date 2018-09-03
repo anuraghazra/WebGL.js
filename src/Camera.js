@@ -73,8 +73,6 @@ Camera.prototype.moveRight = function (dist) {
 Camera.prototype.moveUp = function (dist) {
   vec3.scaleAndAdd(this.position, this.position, this.up, dist)
 }
-
-
 Camera.prototype.onKeyDown = function (e) {
   switch (e.code) {
     case 'KeyW':

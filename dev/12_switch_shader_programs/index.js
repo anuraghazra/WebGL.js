@@ -25,7 +25,6 @@ window.onload = function () {
 
     let program = wgl.createProgram(wgl.shaders.modular.vert, wgl.shaders.modular.frag);
     let program2 = wgl.createProgram(WebGL.Shaders.Simple.vs, WebGL.Shaders.Simple.fs);
-    // wgl.gl.useProgram(program);
 
     // Load Models
     let mat3 = new WebGL.Material(wgl, {
@@ -99,13 +98,13 @@ window.onload = function () {
       diffuse : [1.0, 1.0, 1.0],
       specular : [5.0, 5.0, 5.0],
     });
-    
+    console.log(program)
 
     function animate(time) {
       wgl.background();
 
-      // the render method uses `useProgram(currentProgram)`
-      robot1.render();
+      // use program
+      wgl.useShader(program);
       wgl.setMVP({
         world: program.uniforms.uWorld,
         view: program.uniforms.uView,
@@ -114,14 +113,19 @@ window.onload = function () {
       wgl.setVariable(program.uniforms.uEyeView, wgl.cam.position);
       wgl.setVariable(program.uniforms.uView, wgl.uView);
       
-      robot2.render();
+      // use program2
+      wgl.useShader(program2);
       wgl.setMVP({
         world: program2.uniforms.uWorld,
         view: program2.uniforms.uView,
         proj: program2.uniforms.uProj,
       })
-      wgl.setVariable(program2.uniforms.uEyeView, wgl.cam.position);
       wgl.setVariable(program2.uniforms.uView, wgl.uView);
+      
+      // the render method uses `useProgram(currentProgram)`
+      // then at last unbind the program
+      robot1.render();      
+      robot2.render();
 
       light.render();
       

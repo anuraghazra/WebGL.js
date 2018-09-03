@@ -1,7 +1,12 @@
+/**
+ * @class WebGL.Material
+ * @param {WebGL Context} wgl 
+ * @param {object} settings 
+ */
 WebGL.Material = function(wgl, settings) {
   this.wgl = wgl;
   // * variables
-  this.useTexture = settings.useTexture;
+  this.useTexture = settings.useTexture || 0;
   this.shadeless = settings.shadeless || 0;
   this.color = settings.color || [1.0,0.0,0.0];
   this.shininess = settings.shininess || 32.0;
@@ -13,16 +18,21 @@ WebGL.Material = function(wgl, settings) {
 
   if(settings.diffuse instanceof HTMLImageElement) {
     this.diffuse = this.wgl.setupTexture(settings.diffuse, {});
+    console.log(this.diffuse)
+  } else if (settings.diffuse instanceof WebGLTexture) {
+    this.diffuse = settings.diffuse;
   }
   if(settings.specular instanceof HTMLImageElement) {
     this.specular = this.wgl.setupTexture(settings.specular, {});
+  } else if (settings.diffuse instanceof WebGLTexture) {
+    this.specular = settings.specular;
   }
 
   // TODO 
   if (!this.diffuse && !this.specular) {
-      this.useTexture = 0;
-      this.diffuse = this.wgl.setupTexture(null, {});
-      this.specular = this.wgl.setupTexture(null, {});
+    this.useTexture = 0;
+    this.diffuse = this.wgl.setupTexture(null, {});
+    this.specular = this.wgl.setupTexture(null, {});
   }
 
   return this;
@@ -52,9 +62,9 @@ WebGL.Material.prototype.clean = function() {
 
 /**
  * @class WebGL.PointLight
- * @param {*} program 
- * @param {*} index 
- * @param {*} data 
+ * @param {WebGLProgram} program 
+ * @param {int} index 
+ * @param {object} data 
  */
 WebGL.PointLight = function(program, index, data) {
   this.pos = data.pos || [1.0, 1.0, 1.0];
@@ -105,7 +115,7 @@ WebGL.PointLight.prototype.setVariables = function() {
 
 WebGL.PointLight.prototype.render = function () {
   if (this.renderable) {
-    this.mesh.render(this.program);
+    this.mesh.render();
   }
 }
 WebGL.PointLight.prototype.setPosition = function(pos) {
@@ -114,4 +124,32 @@ WebGL.PointLight.prototype.setPosition = function(pos) {
     this.mesh.translate(pos);
   }
   this.program.wgl.setVariable(this._pos, this.pos);
+}
+
+
+WebGL.SunLight = function(program, index, data) {
+  this.direction = data.direction || [1.0, 1.0, 1.0];
+  this.ambient = data.ambient || [0.2, 0.2, 0.2];
+  this.diffuse = data.diffuse || [1.0, 1.0, 1.0];
+  this.specular = data.specular || [1.0, 1.0, 1.0];
+  this.program = program;
+  
+  this.index = index;
+  this.setVariables();
+}
+WebGL.SunLight.prototype.setVariables = function() {
+  let wgl = this.program.wgl;
+  this._dir = wgl.gl.getUniformLocation(this.program, 'dirlight['+this.index+'].direction');
+  this._ambi = wgl.gl.getUniformLocation(this.program, 'dirlight['+this.index+'].ambient');
+  this._diff = wgl.gl.getUniformLocation(this.program, 'dirlight['+this.index+'].diffuse');
+  this._spec = wgl.gl.getUniformLocation(this.program, 'dirlight['+this.index+'].specular');
+  
+  wgl.setVariable(this._dir, this.direction);
+  wgl.setVariable(this._ambi, this.ambient);
+  wgl.setVariable(this._diff, this.diffuse);
+  wgl.setVariable(this._spec, this.specular);
+}
+WebGL.SunLight.prototype.setDirection = function(direction) {
+  this.direction = direction;
+  this.program.wgl.setVariable(this._dir, this.direction);
 }
