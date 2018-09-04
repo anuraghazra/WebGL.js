@@ -16,11 +16,13 @@ function WebGL(id, width, height) {
 
   this.gl = this.canvas.getContext('webgl2');
   if (!this.gl) {
-    console.log('webgl2 not supported falling back to webgl')
+    console.log('%cwebgl2 not supported falling back to webgl', 
+    'color : white; background : orange; padding : 2px; border-radius : 5px');
     this.gl = this.canvas.getContext('webgl');
   }
   if (!this.gl) {
-    console.log('webgl falling back to experimental-webgl')
+    console.log('%webgl not supported falling back to experimental-webgl', 
+    'color : white; background : crimson; padding : 5px; border-radius : 5px');
     this.gl = this.canvas.getContext('experimental-webgl');
   }
   if (!this.gl) {
@@ -118,7 +120,6 @@ WebGL.prototype.init = function (userdata) {
         let found = lines[i];
         found = found.replace(/;\s+/img, '');
         let shaderUrl = found.replace(/;\s/img, '').substring('#include'.length+2, found.length-1);
-        console.log(shaderUrl);
         that.loadFile(path + shaderUrl, function (err, data) {
           if (err) return;
           if (data) {

@@ -12,11 +12,9 @@ window.onload = function () {
     },
     assets : {
       texture : '../../assets/textures/tiles.jpg',
-      texture1 : '/tests/meshLoading/fire_Extingwisher_UVs Textured.jpg'
     },
     rawModels : {
-      suzane: '/tests/meshLoading/suzane.json',
-      fire: '/tests/meshLoading/fire_Extingwisher.json',
+      suzane: '../../assets/models/teapot.json',
     },
     onDone: load
   })
@@ -37,17 +35,15 @@ window.onload = function () {
 
     console.log(program)
     let mybox = new WebGL.Model(wgl, {
+      material : {
+        shadeless : 0,
+        diff_color : [1.0,0,0]
+      },
       data : wgl.rawModels.suzane,
       tex : wgl.assets.texture,
       pos : [1.0,-2.0,1.0],
+      program : program
     });
-    let mybox2 = new WebGL.Model(wgl, {
-      data : wgl.rawModels.fire, 
-      tex : wgl.assets.texture1,
-      pos : [5.0,-0.0,-3.0] 
-    });
-    wgl.addMesh(mybox);
-    wgl.addMesh(mybox2);
     
     wgl.setStructVariables(program.uniforms, 'light', {
       ambient : [0.5,0.5,0.5],
@@ -58,16 +54,17 @@ window.onload = function () {
     function animate(time) {
       wgl.background();
       
-      mybox2.rotateZ(glMatrix.toRadian(time / 20))
+      // mybox2.rotateZ(glMatrix.toRadian(time / 20))
       mybox.rotateZ(glMatrix.toRadian(time / 20))
 
       wgl.setVariable(program.uniforms.uView, wgl.uView);
 
-      wgl.renderMeshes(program, ['aPosition', 'aNormal', 'aTexCoord'], 0)
+      mybox.render();
+      // wgl.renderMeshes(program, ['aPosition', 'aNormal', 'aTexCoord'], 0)
       // mybox.render(program, ['aPosition', 'aNormal', 'aTexCoord'], 0);
       // mybox2.render(program, ['aPosition', 'aNormal', 'aTexCoord'], 0);
 
-      wgl.camera.doMovement(wgl.uView, time);
+      wgl.cam.doMovement(wgl.uView, time);
 
       requestAnimationFrame(animate);
     }

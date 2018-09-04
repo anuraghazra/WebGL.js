@@ -55,7 +55,7 @@ window.onload = function () {
       data : wgl.rawModels.suzane,
       pos : [0.0,0.0,-1.0],
     })
-    wgl.addMesh(model);
+    // wgl.addMesh(model);
     let model2 = new WebGL.Model(wgl, {
       material : {
         useTexture: 1,
@@ -69,7 +69,7 @@ window.onload = function () {
       data : wgl.rawModels.suzane,
       pos : [5.0,0.0,-1.0],
     })
-    wgl.addMesh(model2);
+    // wgl.addMesh(model2);
 
 
     wgl.setStructVariables(program.uniforms, 'dirlight', {
@@ -137,13 +137,13 @@ window.onload = function () {
     function animate(time) {
       wgl.background(0.1,0.1,0.1);
       wgl.setVariable(program.uniforms.uView, wgl.uView);
-      wgl.setVariable(program.uniforms.cameraPos, wgl.camera.position);
+      wgl.setVariable(program.uniforms.cameraPos, wgl.cam.position);
 
       model.rotateZ(time / 1000);
 
-      model2.render(program, ['position', 'vertNorm', 'aTexCoord']);
+      model2.render();
       
-      wgl.camera.doMovement(wgl.uView, time);
+      wgl.cam.doMovement(wgl.uView, time);
 
       requestAnimationFrame(animate);
     }

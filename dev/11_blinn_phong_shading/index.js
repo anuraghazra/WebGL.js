@@ -24,7 +24,9 @@ window.onload = function () {
     wgl.enable3DDepth();
 
     let program = wgl.createProgram(wgl.shaders.modular.vert, wgl.shaders.modular.frag);
-    wgl.gl.useProgram(program);
+    wgl.useShader(program);
+
+    console.log(program)
 
     wgl.camera({
       pos: [0, -4, 2],
@@ -52,21 +54,22 @@ window.onload = function () {
       program: program,
       data: wgl.rawModels.robot
     });
+    console.log(robot);
     robot.rotateZ(glMatrix.toRadian(180))
 
-    // wgl.setStructVariables(program.uniforms, 'dirlight', {
-    //   direction : [0.0, -5.0, -10.0], 
-    //   ambient : [0.2, 0.2, 0.2], 
-    //   diffuse : [1.0, 1.0, 1.0],
-    //   specular : [5.0, 5.0, 5.0],
-    // });
-
+    
+    let dlight = new WebGL.SunLight(program, 0, {
+      direction : [0.0, -5.0, -10.0], 
+      ambient : [0.2, 0.2, 0.2], 
+      diffuse : [1.0, 1.0, 1.0],
+      specular : [5.0, 5.0, 5.0],
+    });
     let light = new WebGL.PointLight(program, 0, {
       pos : [-1,-1,2],
       diffuse : [1.0, 1.0, 1.0],
       ambient : [0.0,0.0,0],
       specular : [1.0,1.0,1.0],
-      mesh : WebGL.createSphere({radius : 0.1})
+      // mesh : WebGL.createSphere({radius : 0.1})
     });
     
 
@@ -77,9 +80,9 @@ window.onload = function () {
   
       robot.render(program);
 
-      light.render();
+      // light.render();
 
-      wgl.cam.doMovement(wgl.uView, time)
+      wgl.cam.doMovement(wgl.uView, time);
       requestAnimationFrame(animate);
     }
     animate();
