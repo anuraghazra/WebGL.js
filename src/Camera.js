@@ -31,7 +31,8 @@ function Camera(position, lookAt, up) {
   window.addEventListener('keydown', this.onKeyDown.bind(this));
   window.addEventListener('keyup', this.onKeyUp.bind(this));
 
-  
+  this.moveSpeed = 0.2;
+  this.rotSpeed = 0.02;
 }
 
 Camera.prototype.getViewMatrix = function (out) {
@@ -143,41 +144,39 @@ Camera.prototype.onKeyUp = function (e) {
 }
 
 Camera.prototype.doMovement = function(viewMatrix) { 
-  let moveSpeed = 0.2;
-  let rotSpeed = 0.02;
-  
+
   if (this.pressedKeys.forward && !this.pressedKeys.back) {
-    this.moveForward(moveSpeed)
+    this.moveForward(this.moveSpeed)
   }
   if (this.pressedKeys.back && !this.pressedKeys.forward) {
-    this.moveForward(-moveSpeed)
+    this.moveForward(-this.moveSpeed)
   }
 
   if (this.pressedKeys.right && !this.pressedKeys.left) {
-    this.moveRight(moveSpeed)
+    this.moveRight(this.moveSpeed)
   }
   if (this.pressedKeys.left && !this.pressedKeys.right) {
-    this.moveRight(-moveSpeed)
+    this.moveRight(-this.moveSpeed)
   }
 
   if (this.pressedKeys.rotRight && !this.pressedKeys.rotLeft) {
-    this.rotateRight(-rotSpeed)
+    this.rotateRight(-this.rotSpeed)
   }
   if (this.pressedKeys.rotLeft && !this.pressedKeys.rotRight) {
-    this.rotateRight(rotSpeed)
+    this.rotateRight(this.rotSpeed)
   }
   if (this.pressedKeys.rotUp && !this.pressedKeys.rotDown) {
-    this.rotateUp(-rotSpeed)
+    this.rotateUp(-this.rotSpeed)
   }
   if (this.pressedKeys.rotDown && !this.pressedKeys.rotUp) {
-    this.rotateUp(rotSpeed)
+    this.rotateUp(this.rotSpeed)
   }
 
   if (this.pressedKeys.up && !this.pressedKeys.down) {
-    this.moveUp(moveSpeed)
+    this.moveUp(this.moveSpeed)
   }
   if (this.pressedKeys.down && !this.pressedKeys.up) {
-    this.moveUp(-moveSpeed)
+    this.moveUp(-this.moveSpeed)
   }
 
   this.getViewMatrix(viewMatrix);

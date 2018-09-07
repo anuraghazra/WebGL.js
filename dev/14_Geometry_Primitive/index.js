@@ -21,7 +21,7 @@ window.onload = function () {
     wgl.enable3DDepth();
 
     let program = wgl.createProgram(wgl.shaders.modular.vert, wgl.shaders.modular.frag);
-    wgl.gl.useProgram(program);
+    wgl.useShader(program);
 
     wgl.camera({
       pos: [0, -10, 0],

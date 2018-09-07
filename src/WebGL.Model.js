@@ -100,6 +100,19 @@ WebGL.Model.prototype.parseData = function () {
 WebGL.Model.prototype.setMaterial = function (material) {
   this.material = material;
 }
+WebGL.Model.prototype.setProgram = function (program) {
+  this.program = program;
+}
+WebGL.Model.prototype.setParam = function(variables) {
+  for (const i in variables) {
+    if (this.hasOwnProperty(i)) {
+      this[i] = variables[i];
+      if (i === 'pos') {
+        mat4.translate(this.world, mat4.create(), this.pos);
+      }
+    }
+  }
+}
 
 WebGL.Model.prototype.rotateX = function (angle) {
   this.rotation[0] = 1;
@@ -118,6 +131,13 @@ WebGL.Model.prototype.rotateZ = function (angle) {
   this.angle = angle;
   mat4.translate(this.world, mat4.create(), this.pos);
   mat4.rotate(this.world, this.world, this.angle, this.rotation);
+}
+WebGL.Model.prototype.rotate = function (ax, ay, az) {
+  // this.angle = angle;
+  // mat4.translate(this.world, mat4.create(), this.pos);
+  mat4.rotate(this.world, this.world, ax, [1,0,0]);
+  mat4.rotate(this.world, this.world, ay, [0,1,0]);
+  mat4.rotate(this.world, this.world, az, [0,0,1]);
 }
 WebGL.Model.prototype.translate = function (pos) {
   this.pos = pos;
@@ -187,7 +207,7 @@ WebGL.Model.prototype.render = function (attrpos) {
 
   //cleanup
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-  gl.bindTexture(gl.TEXTURE_2D, null);
+  // gl.bindTexture(gl.TEXTURE_2D, null);
   // this.wgl.gl.useProgram(null);
 }
 WebGL.Model.prototype.clean = function () {

@@ -1,4 +1,18 @@
-WebGL.createPlane = function ({ depth = 1, scale = 5 }) {
+WebGL.buildModelSchema = function(name, position, normals, texCoords, indices) {
+  let schema = {
+    meshes: {
+      0: {
+        name: name,
+        vertices: position,
+        normals: normals,
+        texturecoords: [texCoords],
+        indices: indices
+      }
+    }
+  }
+  return schema;
+}
+WebGL.createPlane = function ({ depth = 1, scale = 5, uvSize = 1 }) {
   var vertices = [
     -scale, -scale, 0
     , -scale, scale, 0
@@ -151,6 +165,10 @@ WebGL.createPlane = function ({ depth = 1, scale = 5 }) {
     ]
   ];
 
+  uvs = uvs.map(function(i) {
+    return i * uvSize;
+  });
+
   vertices = new Float32Array(vertices);
   normals = new Float32Array(normals);
   uvs = new Float32Array(uvs);
@@ -158,18 +176,7 @@ WebGL.createPlane = function ({ depth = 1, scale = 5 }) {
   indices = [].concat.apply([], indices);
   indices = new Uint16Array(indices);
 
-  let schema = {
-    meshes: {
-      0: {
-        name: 'plane',
-        vertices: vertices,
-        normals: normals,
-        texturecoords: [uvs],
-        indices: indices
-      }
-    }
-  }
-  return schema;
+  return WebGL.buildModelSchema('plane', vertices, normals, uvs, indices);
 }
 
 WebGL.createSphere = function createSphere(options) {
@@ -274,18 +281,8 @@ WebGL.createSphere = function createSphere(options) {
     }
   }
 
-  let schema = {
-    meshes: {
-      0: {
-        name: 'sphere',
-        vertices: positions,
-        normals: normals,
-        texturecoords: [uvs],
-        indices: indices
-      }
-    }
-  }
-  return schema;
+  return WebGL.buildModelSchema('sphere', positions, normals, uvs, indices);
+
 }
 
 // ==========================================||>
@@ -387,18 +384,9 @@ WebGL.createPlaneSubdivide = function (
   normals = new Float32Array(normals);
   texCoords = new Float32Array(texCoords);
   indices = new Uint16Array(indices);
-  let schema = {
-    meshes: {
-      0: {
-        name: 'planeMesh',
-        vertices: positions,
-        normals: normals,
-        texturecoords: [texCoords],
-        indices: indices
-      }
-    }
-  }
-  return schema;
+  
+  return WebGL.buildModelSchema('planeMesh', positions, normals, texCoords, indices);
+
 };
 
 /**
@@ -479,18 +467,9 @@ WebGL.createBox = function ({ width = 1, height = 1, depth = 1 }) {
   normals = new Float32Array(normals);
   texCoords = new Float32Array(texCoords);
   indices = new Uint16Array(indices);
-  let schema = {
-    meshes: {
-      0: {
-        name: 'box',
-        vertices: positions,
-        normals: normals,
-        texturecoords: [texCoords],
-        indices: indices
-      }
-    }
-  }
-  return schema;
+  
+  return WebGL.buildModelSchema('box', positions, normals, texCoords, indices);
+
 };
 
 /**
@@ -569,18 +548,8 @@ WebGL.createTorus = function (
   normals = new Float32Array(normals);
   texCoords = new Float32Array(texCoords);
   indices = new Uint16Array(indices);
-  let schema = {
-    meshes: {
-      0: {
-        name: 'torus',
-        vertices: positions,
-        normals: normals,
-        texturecoords: [texCoords],
-        indices: indices
-      }
-    }
-  }
-  return schema;
+
+  return WebGL.buildModelSchema('torus', positions, normals, texCoords, indices);
 };
 
 /**
@@ -679,16 +648,6 @@ WebGL.createTruncatedCone = function (
   normals = new Float32Array(normals);
   texCoords = new Float32Array(texCoords);
   indices = new Uint16Array(indices);
-  let schema = {
-    meshes: {
-      0: {
-        name: 'cone',
-        vertices: positions,
-        normals: normals,
-        texturecoords: [texCoords],
-        indices: indices
-      }
-    }
-  }
-  return schema;
+
+  return WebGL.buildModelSchema('cone', positions, normals, texCoords, indices);
 };

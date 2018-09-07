@@ -79,4 +79,34 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 vFragPos, vec3 viewDir) 
   return (ambient + diffuse + specular);
 }
 
+vec3 CalcSpotLight(SpotLight light, vec3 vFragPos, vec3 viewDir, vec3 normal) {
+  vec3 diffuseTexture = initDiffuse(vec3(texture2D(material.diffuse, vTexCoord)));
+  vec3 specularTexture = initSpecular(vec3(texture2D(material.specular, vTexCoord)) * material.spec_color);
+
+  vec3 color = vec3(0.0);
+
+  vec3 lightDir = normalize(light.position - vFragPos);
+  float theta = dot(lightDir, normalize(-light.direction));
+  float epsilon = light.outerCutOff - light.cutOff;
+  float intensity = clamp((theta - light.cutOff) / epsilon, 0.0, 1.0);
+
+  if (theta > light.cutOff) {
+    // diffuse
+    float diff = max(dot(normal, lightDir), 0.0);
+
+    // specular
+    float spec = 0.0;
+    vec3 halfway = normalize(lightDir + viewDir);
+    spec = pow( max(dot(normal, halfway), 0.0), material.shininess) * material.specularIntensity;
+    vec3 diffuse = light.diffuse * diff * diffuseTexture;
+    vec3 specular = light.specular * spec * specularTexture;
+    diffuse *= intensity;
+    specular *= intensity;
+    color = (diffuse + specular);
+  } else {
+    color = (light.ambient * (diffuseTexture)) * intensity;
+  }
+  return color;
+}
+
 // END Functions ============= >>

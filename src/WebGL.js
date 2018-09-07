@@ -3,8 +3,8 @@
  * @param {*} id 
  * @param {*} width 
  * @param {*} height 
- * @version 1.0
- * @author Anuraghazra<hazru.anurag@gmail.com>
+ * @version 1.2.0
+ * @author Anurag Hazra <hazru.anurag@gmail.com>
  * @github <https://github.com/anuraghazra>
  */
 function WebGL(id, width, height) {
@@ -16,19 +16,18 @@ function WebGL(id, width, height) {
 
   this.gl = this.canvas.getContext('webgl2');
   if (!this.gl) {
-    console.log('%cwebgl2 not supported falling back to webgl', 
+    console.log('%cWebGL.js : webgl2 not supported falling back to webgl', 
     'color : white; background : orange; padding : 2px; border-radius : 5px');
     this.gl = this.canvas.getContext('webgl');
   }
   if (!this.gl) {
-    console.log('%webgl not supported falling back to experimental-webgl', 
+    console.log('%WebGL.js :webgl not supported falling back to experimental-webgl', 
     'color : white; background : crimson; padding : 5px; border-radius : 5px');
     this.gl = this.canvas.getContext('experimental-webgl');
   }
   if (!this.gl) {
-    console.error('WEBGL Is Not Supported')
+    console.error('WebGL.js : WEBGL Is Not Supported')
   }
-  console.log('%cWebGL.js : WEBGL Enabled', 'color : green');
 
   this.videoloaded = false;
 
@@ -38,6 +37,8 @@ function WebGL(id, width, height) {
   this.assets = null;
 
   this.meshes = [];
+
+  this.userdata = null;
 }
 
 WebGL.prototype.useShader = function (program) {
@@ -61,6 +62,7 @@ WebGL.prototype.renderMeshes = function (program, attrpos, texslot) {
  * @param {*} shaders 
  */
 WebGL.prototype.init = function (userdata) {
+  this.userdata = userdata;
   this.shaders = userdata.shaders;
   this.models = userdata.models;
   this.rawModels = userdata.rawModels;
@@ -149,52 +151,19 @@ WebGL.prototype.init = function (userdata) {
 
   // * models
   for (const i in this.models) {
-
-    that.loadModel(that.models[i].mesh, function (err_model, data_model) {
-      // debugger
-      if (err_model) return;
-
-      if (typeof that.models[i].tex === 'string') {
-        that.loadImage(that.models[i].tex, function (err_tex, data_tex) {
-          if (err_tex) return;
-          if (data_tex) {
-            that.models[i].tex = data_tex;
-            console.log(that.models[i].tex instanceof HTMLImageElement)
-            createMesh();
-          }
-        })
-      } else if (typeof that.models[i].tex === 'boolean') {
-        that.models[i].tex = true;
-        createMesh();
-      } else {
-        that.models[i].tex = null;
-        createMesh();
+    that.loadModel(that.models[i], function (err, data) {
+      if (err) return;
+      if (data) {
+        that.models[i] = _createModel(data);
       }
-
-      // TODO Fix Model Auto Loading
-      function createMesh() {
-        if (data_model) {
-          for (let j = 0; j < data_model.meshes.length; j++) {
-            that.models[i + '_' + data_model.meshes[j].name] = new WebGL.Model(this, {
-              data: data_model,
-              program: that.models[i].program,
-              pos: [i, i, i]
-            }
-
-              // that,
-              // data_model.meshes[j],
-              // that.models[i].tex,
-              // data_model.rootnode.children[j].transformation
-            );
-            if (j === data_model.meshes.length - 1) {
-              delete that.models[i];
-            }
-          }
-        }
-      }
-
     })
+  }
 
+  function _createModel(data) {
+    let m = new WebGL.Model(that, {
+      data : data,
+    });
+    return m;
   }
 
   // * Assets
@@ -220,6 +189,8 @@ WebGL.prototype.init = function (userdata) {
   }, 50);
 
 }
+
+
 
 WebGL.prototype.camera = function (opt) {
   this.cam = new Camera(
@@ -402,11 +373,30 @@ WebGL.prototype.enableAttribs = function ({ type, buffer, pos, elements, isfloat
  * @param {*} program 
  */
 WebGL.prototype.getShaderVariables = function (shader, program) {
+  const TYPES_SEMANTIC = {
+    'bool': '1i',
+    'int': '1i',
+    'sampler2D': 't',
+    'samplerCube': 't',
+    'float': '1f',
+    'vec2': '2f',
+    'vec3': '3f',
+    'vec4': '4f',
+    'ivec2': '2i',
+    'ivec3': '3i',
+    'ivec4': '4i',
+    'mat2': 'm2',
+    'mat3': 'm3',
+    'mat4': 'm4'
+  }
   if (!program.attribs) program.attribs = {};
   if (!program.uniforms) program.uniforms = {};
 
   function getVar(match) {
     return match.split(' ')[2].replace(';', '');
+  }
+  function getType(match) {
+    return match.split(' ')[1].replace(';', '');
   }
 
   // * > Find Variables
@@ -421,14 +411,16 @@ WebGL.prototype.getShaderVariables = function (shader, program) {
   if ((matchAttrs)) {
     for (let i = 0; i < matchAttrs.length; i++) {
       let _var = getVar(matchAttrs[i]);
+      console.log()
       program.attribs[_var] = this.gl.getAttribLocation(program, _var);
     }
   }
-
+  
   if (matchUnis) {
     for (let i = 0; i < matchUnis.length; i++) {
       let _var = getVar(matchUnis[i]);
       program.uniforms[_var] = this.gl.getUniformLocation(program, _var)
+      program.uniforms[_var].type = getType(matchUnis[i]);
     }
   }
 
@@ -453,11 +445,19 @@ WebGL.prototype.getShaderVariables = function (shader, program) {
           return i.match('^\n$') === null;
         });
 
+        // var numUniforms = wgl.gl.getProgramParameter(program, wgl.gl.ACTIVE_UNIFORMS)
+        // console.log({numUniforms})
+        // let info = wgl.gl.getActiveUniform(program, 60)
+        // console.log(info.name)
+        // let u = wgl.gl.getUniformLocation(program, info.name);
+        // console.log(u)
         // * get the actual uniform locaitons ('ambient, light };')
         for (let k = 4; k < struct.length; k += 2) {
           struct[k] = struct[k].replace(/\}|;|\n/g, '');
           let prop = (varname + '.' + struct[k]).replace('"', '').trim();
           program.uniforms[prop] = this.gl.getUniformLocation(program, prop);
+          program.uniforms[prop].name = struct[k];
+          program.uniforms[prop].type = struct[k-1];
         }
       }
     }
@@ -481,7 +481,7 @@ WebGL.prototype.setStructVariables = function (uniforms, lightname, settings) {
       } else if (typeof settings[i] === 'number') {
         this.gl.uniform1f.call(this.gl, uniforms[varname],
           settings[i]);
-      } else if (settings[i][0] instanceof WebGLTexture) {
+      } else if (settings[i][0] instanceof WebGLTexture && !settings[i][0].empty) {
         this.useTexture(settings[i][0], uniforms[varname], settings[i][1]);
       }
     }
@@ -544,7 +544,6 @@ WebGL.prototype.setupTexture = function (img, settings) {
   // Flip The UVs
   gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, (settings.FLIP_Y === undefined) ? true : settings.FLIP_Y);
 
-  // Check For PowerOf2 Images
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, settings.WRAP_S || gl.CLAMP_TO_EDGE);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, settings.WRAP_T || gl.CLAMP_TO_EDGE);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, settings.MIN_FILTER || gl.LINEAR);
@@ -553,6 +552,7 @@ WebGL.prototype.setupTexture = function (img, settings) {
   if (img instanceof HTMLImageElement) {
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
   } else {
+    // console.trace('Image Is Not instanceof HTMLImageElement');
     const pixel = new Uint8Array([0, 0, 255, 255]);  // opaque blue
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA,
       settings.width||1, settings.height||1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
@@ -686,4 +686,11 @@ WebGL.Shaders = {
     }
     `
   }
+}
+
+function radians(deg) {
+  return glMatrix.toRadian(deg);
+}
+function degrees(deg) {
+  return 180/Math.PI*deg
 }

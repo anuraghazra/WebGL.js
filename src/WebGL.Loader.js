@@ -3,6 +3,53 @@
  * @param {*} url 
  * @param {*} callback 
  */
+WebGL.Loader = function(wgl) {
+  this.resource = null;  
+  this.resCount = 0;
+  return this;
+}
+WebGL.prototype.trypreload = function() {
+  let timer = window.setInterval(function () {
+    if (this.resCount <= 0) {
+      let time = (performance.now() / 1000).toFixed(2);
+      console.log('%cAll Resources Loaded in ' + time + 's', 'color : green');
+      ((window.preload === undefined) ? this.preload : window.preload)();
+      window.clearInterval(timer);
+      return;
+    }
+  }.bind(this), 10);
+}
+WebGL.Loader.prototype.load = function(type, url) {
+  let that = this;
+  if (type === 'IMAGE') {
+    that.resCount++;
+    wgl.loadImage(url, function (err, img) {
+      if (err) return;
+      if (img) {
+        that.resource = img;
+        that.resCount--;
+      }
+    });
+  } else if (type === 'MODEL') {
+    wgl.loadModel(url, function (err, data) {
+      if (err) return;
+      if (data) {
+        that.resource = data;
+      }
+    });
+  }
+  
+  let timer = window.setInterval(function () {
+    if (this.resCount <= 0) {
+      let time = (performance.now() / 1000).toFixed(2);
+      console.log('%cAll Resources Loaded in ' + time + 's', 'color : green');
+      ((window.preload === undefined) ? this.preload : window.preload)();
+      window.clearInterval(timer);
+      return;
+    }
+  }.bind(this), 10);
+  return this;
+}
 
 WebGL.prototype.loadFile = function (url, callback) {
   this.res++;

@@ -43,20 +43,22 @@ window.onload = function () {
     });
 
 
-    let tex = wgl.setupTexture(wgl.assets.mmtex2);
-    
+    let tex = wgl.setupTexture(wgl.assets.mmtex);
+
     console.log(program)
+
+
     wgl.enableAlphaBlend();
-    
-    
     function animate(time) {
       wgl.background();
-      
+
       wgl.setVariable(program.uniforms.uView, wgl.uView);
-      
-      
-      //cleanup
+
       wgl.useTexture(tex, program.uniforms.tex, 0);
+
+      box.translate([0, -2, 0]);
+      box.render();
+      box.translate([0, 2, 0]);
       box.render();
 
 

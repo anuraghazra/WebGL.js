@@ -26,6 +26,7 @@ uniform Material material;
 // Lights
 #define NR_POINT_LIGHTS 20
 #define NR_SUN_LIGHTS 5
+#define NR_SPOT_LIGHTS 5
 
 struct PointLight {
   vec3 position;
@@ -37,6 +38,18 @@ struct PointLight {
   float quadratic;
 };
 uniform PointLight pointlights[NR_POINT_LIGHTS];
+
+struct SpotLight {
+  vec3 direction;
+  vec3 position;
+  float cutOff;
+  float outerCutOff;
+  vec3 ambient;
+  vec3 diffuse;
+  vec3 specular;
+};
+uniform SpotLight spotlights[NR_SPOT_LIGHTS];
+
 
 struct DirLight {
   vec3 direction;
@@ -64,6 +77,11 @@ void main() {
     // point lights
     for(int i = 0; i < NR_POINT_LIGHTS; i++) {
       result += CalcPointLight(pointlights[i], norm, vFragPos, viewDir);
+    }
+
+    // spot lights
+    for(int i = 0; i < NR_SPOT_LIGHTS; i++) {
+      result += CalcSpotLight(spotlights[i], vFragPos, viewDir, norm);
     }
   }
 

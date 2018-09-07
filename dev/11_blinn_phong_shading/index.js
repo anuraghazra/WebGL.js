@@ -69,8 +69,9 @@ window.onload = function () {
       diffuse : [1.0, 1.0, 1.0],
       ambient : [0.0,0.0,0],
       specular : [1.0,1.0,1.0],
-      // mesh : WebGL.createSphere({radius : 0.1})
+      mesh : WebGL.createSphere({radius : 0.1})
     });
+    
     
 
     function animate(time) {
@@ -78,9 +79,9 @@ window.onload = function () {
       wgl.setVariable(program.uniforms.uEyeView, wgl.cam.position)
       wgl.setVariable(program.uniforms.uView, wgl.uView);
   
-      robot.render(program);
+      robot.render();
 
-      // light.render();
+      light.render();
 
       wgl.cam.doMovement(wgl.uView, time);
       requestAnimationFrame(animate);
