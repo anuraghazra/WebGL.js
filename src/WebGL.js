@@ -121,7 +121,8 @@ WebGL.prototype.init = function (userdata) {
       if (lines[i].trim().match(/#include.*?;$/)) {
         let found = lines[i];
         found = found.replace(/;\s+/img, '');
-        let shaderUrl = found.replace(/;\s/img, '').substring('#include'.length + 2, found.length - 1);
+        let shaderUrl = found.replace(/";\s/img, '').substring('#include'.length + 2, found.length - 1);
+        shaderUrl.replace(/"/img, "");
         that.loadFile(path + shaderUrl, function (err, data) {
           if (err) return;
           if (data) {
