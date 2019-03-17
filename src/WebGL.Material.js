@@ -104,7 +104,6 @@ WebGL.PointLight = function (program, index, data) {
 }
 WebGL.PointLight.prototype.setVariables = function () {
   let wgl = this.program.wgl;
-  console.log(this.index)
   this._pos = wgl.gl.getUniformLocation(this.program, 'pointlights[' + this.index + '].position');
   this._diff = wgl.gl.getUniformLocation(this.program, 'pointlights[' + this.index + '].diffuse');
   this._ambi = wgl.gl.getUniformLocation(this.program, 'pointlights[' + this.index + '].ambient');

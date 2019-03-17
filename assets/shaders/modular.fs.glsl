@@ -59,7 +59,7 @@ struct DirLight {
 };
 uniform DirLight dirlight[NR_SUN_LIGHTS];
 
-#include "_light.glsl";
+#include "light.glsl";
 
 void main() {
   vec3 norm = normalize(vNormal);
