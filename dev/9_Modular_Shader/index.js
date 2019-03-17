@@ -28,6 +28,7 @@ window.onload = function () {
   function onDone() {
     wgl.enable3DDepth();
 
+    // wgl.gl.getExtension('OES_standard_derivatives');
     let program = wgl.createProgram(wgl.shaders.modular.vert, wgl.shaders.modular.frag);
     wgl.gl.useProgram(program);
 
@@ -37,6 +38,7 @@ window.onload = function () {
       view: program.uniforms.uView,
       proj: program.uniforms.uProj,
     });
+
 
     // Load Models
     let teapot = new WebGL.Model(wgl, {
@@ -122,6 +124,9 @@ window.onload = function () {
     });
 
     const INSTANCES = 5;
+
+    console.table(wgl.uView)
+
     function animate(time) {
       wgl.background();
       wgl.setVariable(program.uniforms.uEyeView, wgl.cam.position)

@@ -19,7 +19,7 @@ window.onload = function () {
   function onDone() {
     wgl.enable3DDepth();
 
-    let program = wgl.createProgram(WebGL.Shaders.AmbientLight.vs, WebGL.Shaders.AmbientLight.fs);
+    let program = wgl.createProgram(wgl.shaders.modular.vert, wgl.shaders.modular.frag);
     wgl.gl.useProgram(program);
     console.log(program);
 
@@ -32,22 +32,22 @@ window.onload = function () {
 
 
     // Load Models
-    // let mat = new WebGL.Material(wgl, {
-    //   useTexture: 1,
-    //   shadeless: 0,
-    //   ambient: [0.2, 0.2, 0.2],
-    //   // diffuse: wgl.assets.tile,
-    //   // specular: wgl.assets.tilespec,
-    // })
+    let mat = new WebGL.Material(wgl, {
+      useTexture: 1,
+      shadeless: 0,
+      ambient: [0.2, 0.2, 0.2],
+      diffuse: wgl.assets.tile,
+      specular: wgl.assets.tilespec,
+    })
     let cone = new WebGL.Model(wgl, {
-      // material: mat,
+      material: mat,
       pos: [-5, 0, 0],
       program: program,
       data: WebGL.createTruncatedCone(0, 3, 8, 10, 10)
     });
 
     let torus = new WebGL.Model(wgl, {
-      // material: mat,
+      material: mat,
       pos: [5, 0, 0],
       program: program,
       data: WebGL.createTorus(3, 1, 30, 30)
@@ -61,14 +61,14 @@ window.onload = function () {
       direction: [0, 0, 2],
     })
 
-    // let dlight = new WebGL.SunLight(program, 0, {
-    //   direction: [0, -5, -10]
-    // });
+    let dlight = new WebGL.SunLight(program, 0, {
+      direction: [0, -5, -10]
+    });
 
-    // let plight = new WebGL.PointLight(program, 0, {
-    //   pos: [0, -2, 0],
-    //   mesh : WebGL.createSphere({radius : 0.1})
-    // })
+    let plight = new WebGL.PointLight(program, 0, {
+      pos: [0, -2, 0],
+      mesh : WebGL.createSphere({radius : 0.1})
+    })
 
 
     let tex = wgl.setupTexture(wgl.assets.tile);
@@ -84,8 +84,8 @@ window.onload = function () {
       // wgl.useTexture(tex2, program.uniforms.uSampler, 0);
       torus.render();
 
-      // plight.setPosition([0,10*Math.sin(time/1000),0])
-      // plight.render();
+      plight.setPosition([0,10*Math.sin(time/1000),0])
+      plight.render();
 
       wgl.cam.doMovement(wgl.uView, time)
       requestAnimationFrame(animate);

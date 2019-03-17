@@ -25,7 +25,7 @@ uniform Material material;
 
 // Lights
 #define NR_POINT_LIGHTS 20
-#define NR_SUN_LIGHTS 5
+#define NR_SUN_LIGHTS 4
 #define NR_SPOT_LIGHTS 5
 
 struct PointLight {
@@ -71,8 +71,8 @@ void main() {
     result = initDiffuse(vec3(texture2D(material.diffuse, vTexCoord)));
   } else {
     // directional lighting
-    for(int i = 0; i < NR_SUN_LIGHTS; i++) {
-      result += CalcDirLight(dirlight[i], norm, viewDir);
+    for(int j = 0; j < NR_SUN_LIGHTS; j++) {
+      result += CalcDirLight(dirlight[j], norm, viewDir);
     }
     // point lights
     for(int i = 0; i < NR_POINT_LIGHTS; i++) {

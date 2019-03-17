@@ -13,13 +13,14 @@
       position: absolute;
     }
   </style>
+
 </head>
 
 <body>
 
   <canvas id="c"></canvas>
 
-  <script language="x/vs" id="vert">
+  <!-- <script language="x/vs" id="vert">
     precision mediump float;
 
     attribute vec3 position;
@@ -41,8 +42,10 @@
       fragNormal = (mWorld * vec4(vertNormal, 0.0)).xyz;
       gl_Position = mProj * mView * mWorld * vec4(position, 1.0);
     }
-  </script>
+  </script> -->
 
+
+  <!--
   <script language="x/frag" id="frag">
   precision mediump float;
 
@@ -68,12 +71,14 @@
     gl_FragColor = vec4(texel.rgb * lightintensity, texel.a);
   }
   </script>
-
+  -->
   <script src="./src/gl-matrix-min.js"></script>
   <script src="./src/Camera.js"></script>
   <script src="./src/WebGL.js"></script>
   <script src="./src/WebGL.Loader.js"></script>
   <script src="./src/WebGL.Model.js"></script>
+  <script src="./src/WebGL.Primitives.js"></script>
+  <script src="./src/WebGL.Material.js"></script>
   <script src="./index.js"></script>
 
 

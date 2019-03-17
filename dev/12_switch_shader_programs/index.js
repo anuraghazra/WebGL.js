@@ -114,13 +114,13 @@ window.onload = function () {
       wgl.setVariable(program.uniforms.uView, wgl.uView);
       
       // use program2
-      wgl.useShader(program2);
-      wgl.setMVP({
-        world: program2.uniforms.uWorld,
-        view: program2.uniforms.uView,
-        proj: program2.uniforms.uProj,
-      })
-      wgl.setVariable(program2.uniforms.uView, wgl.uView);
+      // wgl.useShader(program2);
+      // wgl.setMVP({
+      //   world: program2.uniforms.uWorld,
+      //   view: program2.uniforms.uView,
+      //   proj: program2.uniforms.uProj,
+      // })
+      // wgl.setVariable(program2.uniforms.uView, wgl.uView);
       
       // the render method uses `useProgram(currentProgram)`
       // then at last unbind the program

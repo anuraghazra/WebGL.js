@@ -16,13 +16,13 @@ function WebGL(id, width, height) {
 
   this.gl = this.canvas.getContext('webgl2');
   if (!this.gl) {
-    console.log('%cWebGL.js : webgl2 not supported falling back to webgl', 
-    'color : white; background : orange; padding : 2px; border-radius : 5px');
+    console.log('%cWebGL.js : webgl2 not supported falling back to webgl',
+      'color : white; background : orange; padding : 2px; border-radius : 5px');
     this.gl = this.canvas.getContext('webgl');
   }
   if (!this.gl) {
-    console.log('%WebGL.js :webgl not supported falling back to experimental-webgl', 
-    'color : white; background : crimson; padding : 5px; border-radius : 5px');
+    console.log('%WebGL.js :webgl not supported falling back to experimental-webgl',
+      'color : white; background : crimson; padding : 5px; border-radius : 5px');
     this.gl = this.canvas.getContext('experimental-webgl');
   }
   if (!this.gl) {
@@ -103,7 +103,7 @@ WebGL.prototype.init = function (userdata) {
             parseShaderDirective(data, that.shaders[i], that.shaders[i].path, 'vert')
           }
         });
-        
+
         this.shaders[i].frag = this.loadFile(this.shaders[i].path + this.shaders[i].frag, function (err, data) {
           if (err) return;
           if (data) {
@@ -121,7 +121,7 @@ WebGL.prototype.init = function (userdata) {
       if (lines[i].trim().match(/#include.*?;$/)) {
         let found = lines[i];
         found = found.replace(/;\s+/img, '');
-        let shaderUrl = found.replace(/;\s/img, '').substring('#include'.length+2, found.length-1);
+        let shaderUrl = found.replace(/;\s/img, '').substring('#include'.length + 2, found.length - 1);
         that.loadFile(path + shaderUrl, function (err, data) {
           if (err) return;
           if (data) {
@@ -161,7 +161,7 @@ WebGL.prototype.init = function (userdata) {
 
   function _createModel(data) {
     let m = new WebGL.Model(that, {
-      data : data,
+      data: data,
     });
     return m;
   }
@@ -353,7 +353,9 @@ WebGL.prototype.makeBuffer = function (type, data, remove) {
  * @param {*} stride 
  * @param {*} offset 
  */
-WebGL.prototype.enableAttribs = function ({ type, buffer, pos, elements, isfloat = this.gl.FLOAT, isnorm = false, stride = 0, offset = 0 }) {
+WebGL.prototype.enableAttribs = function (
+  { type, buffer, pos, elements, isfloat = this.gl.FLOAT, isnorm = false, stride = 0, offset = 0 }
+) {
   this.gl.bindBuffer(type, buffer);
   this.gl.enableVertexAttribArray(pos);
   this.gl.vertexAttribPointer(
@@ -389,6 +391,7 @@ WebGL.prototype.getShaderVariables = function (shader, program) {
     'mat3': 'm3',
     'mat4': 'm4'
   }
+
   if (!program.attribs) program.attribs = {};
   if (!program.uniforms) program.uniforms = {};
 
@@ -403,6 +406,7 @@ WebGL.prototype.getShaderVariables = function (shader, program) {
 
   // regEx Taken From claygl.js
   let matchUnis = shader.match(/uniform\s+(bool|float|int|vec2|vec3|vec4|ivec2|ivec3|ivec4|mat2|mat3|mat4|sampler2D|samplerCube)\s+([\s\S]*?);/g);
+  // console.log(matchUnis)
   let matchAttrs = shader.match(/attribute\s+(float|int|vec2|vec3|vec4)\s+([\s\S]*?);/g);
   // old regex
   // let matchAttrs = shader.match(/attribute\s(.*?);/img);
@@ -411,16 +415,18 @@ WebGL.prototype.getShaderVariables = function (shader, program) {
   if ((matchAttrs)) {
     for (let i = 0; i < matchAttrs.length; i++) {
       let _var = getVar(matchAttrs[i]);
-      console.log()
       program.attribs[_var] = this.gl.getAttribLocation(program, _var);
     }
   }
-  
+
   if (matchUnis) {
     for (let i = 0; i < matchUnis.length; i++) {
       let _var = getVar(matchUnis[i]);
-      program.uniforms[_var] = this.gl.getUniformLocation(program, _var)
-      program.uniforms[_var].type = getType(matchUnis[i]);
+      let location = this.gl.getUniformLocation(program, _var)
+      if (location) {
+        program.uniforms[_var] = location;
+        program.uniforms[_var].type = getType(matchUnis[i]);
+      }
     }
   }
 
@@ -429,7 +435,6 @@ WebGL.prototype.getShaderVariables = function (shader, program) {
   // let matchStruct = shader.match(/struct\s.*\w\s?\{(\s\n.*;){0,}/gm);
   let matchStruct = shader.match(/\bstruct.+?{(\n?[^\;]?.+?){0,}?\n?\};/mg);
   let matchStructVar = shader.match(/uniform\s[a-zA-Z\s]+;/img);
-
 
   if (matchStructVar === null || matchStruct === null) {
     return;
@@ -444,7 +449,6 @@ WebGL.prototype.getShaderVariables = function (shader, program) {
         let struct = matchStruct[j].split(' ').filter(Boolean).filter(function (i) {
           return i.match('^\n$') === null;
         });
-
         // var numUniforms = wgl.gl.getProgramParameter(program, wgl.gl.ACTIVE_UNIFORMS)
         // console.log({numUniforms})
         // let info = wgl.gl.getActiveUniform(program, 60)
@@ -457,11 +461,12 @@ WebGL.prototype.getShaderVariables = function (shader, program) {
           let prop = (varname + '.' + struct[k]).replace('"', '').trim();
           program.uniforms[prop] = this.gl.getUniformLocation(program, prop);
           program.uniforms[prop].name = struct[k];
-          program.uniforms[prop].type = struct[k-1];
+          program.uniforms[prop].type = struct[k - 1];
         }
       }
     }
   }
+
 }
 
 /**
@@ -489,7 +494,11 @@ WebGL.prototype.setStructVariables = function (uniforms, lightname, settings) {
 }
 
 WebGL.prototype.setVariable = function (locaton, data) {
-  if (typeof data === 'object') {
+  if (typeof data === 'number' && data.length === undefined) {
+    // console.log(locaton)
+    this.gl.uniform1f(locaton, data);
+  }
+  if (typeof data == 'object' && data.length) {
     switch (data.length) {
       case 2:
         this.gl.uniform2fv(
@@ -525,12 +534,6 @@ WebGL.prototype.setVariable = function (locaton, data) {
         break;
     }
   }
-  if (typeof data === 'number') {
-    this.gl.uniform1f(
-      locaton,
-      data
-    );
-  }
 }
 
 
@@ -555,7 +558,7 @@ WebGL.prototype.setupTexture = function (img, settings) {
     // console.trace('Image Is Not instanceof HTMLImageElement');
     const pixel = new Uint8Array([0, 0, 255, 255]);  // opaque blue
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA,
-      settings.width||1, settings.height||1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+      settings.width || 1, settings.height || 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
       null);
   }
   gl.bindTexture(gl.TEXTURE_2D, null);
@@ -692,5 +695,5 @@ function radians(deg) {
   return glMatrix.toRadian(deg);
 }
 function degrees(deg) {
-  return 180/Math.PI*deg
+  return 180 / Math.PI * deg
 }

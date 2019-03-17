@@ -1,4 +1,3 @@
-
 // ============= Functions
 vec3 initDiffuse(vec3 tex) {
   if (material.useTexture == 0.0) {
@@ -64,9 +63,13 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 vFragPos, vec3 viewDir) 
     spec = pow( max(dot(viewDir, reflectDir), 0.0), material.shininess) * material.specularIntensity;
   }
   
+  // this.constant = data.constant || 1.0;
+  // this.linear = data.linear || 0.035;
+  // this.quadratic = data.quadratic || 0.044;
   // attenuation
-  float dist = length(light.position - vFragPos);
-  float attenuation = 1.0 / (light.constant + light.linear * dist + light.quadratic * (dist * dist));
+  float d = length(light.position - vFragPos);
+  // float attenuation = 1.0 / (light.constant + light.linear * d + light.quadratic * (d * d)); 
+  float attenuation = 1.0 / (1.0 + 0.035 * d + 0.04 * (d * d)); 
   
   // combine results
   vec3 ambient = light.ambient * (diffuseTexture * material.ambient);

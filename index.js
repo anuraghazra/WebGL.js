@@ -2,75 +2,77 @@ let wgl = new WebGL('#c', window.innerWidth, window.innerHeight);
 
 wgl.init({
   shaders: {
-    simple: {
+    modular: {
       type: 'URL',
-      path : './assets/shaders/',
-      vert: 'simple.vs.glsl',
-      frag: 'simple.fs.glsl',
-      // type: 'DOM',
-      // vert: '#vert',
-      // frag: '#frag',
+      path: './assets/shaders/',
+      vert: 'modular.vs.glsl',
+      frag: 'modular.fs.glsl',
     },
   },
-  models: {
-    suzane: {
-      mesh: '/meshLoading/suzane.json',
-      tex: '/meshLoading/suzane.png',
-    }
+  rawModels: {
+    teapot: './assets/models/teapot.json',
+  },
+  assets: {
+    teapot: '../../assets/textures/tiles.jpg',
+    teapotspec: '../../assets/textures/tiles_spec.jpg',
   },
   onDone: load
 })
 
 function load() {
   wgl.enable3DDepth();
-  let gl = wgl.gl;
-
-  let program = wgl.createProgram(wgl.shaders.simple.vert, wgl.shaders.simple.frag);
-
-  wgl.gl.useProgram(program)
-
+  // let program = wgl.createProgram(wgl.shaders.modular.vert, wgl.shaders.modular.frag);
+  let program = wgl.createProgram(wgl.shaders.modular.vert, wgl.shaders.modular.frag);
+  wgl.useShader(program);
 
   wgl.camera({
-    fov: 65,
-    near: 0.1,
-    far: 1000,
-    world: program.uniforms.mWorld,
-    view: program.uniforms.mView,
-    proj: program.uniforms.mProj,
+    pos: [0, -20, 0],
+    world: program.uniforms.uWorld,
+    view: program.uniforms.uView,
+    proj: program.uniforms.uProj,
   });
-  wgl.cameraPosition(0, -8, 0);
 
-  console.log(program)
+  console.log(program);
 
+  // Load Models
+  let teapot = new WebGL.Model(wgl, {
+    material: {
+      useTexture: 1,
+      shadeless: 0,
+      diffuse: wgl.assets.teapot,
+      specular: wgl.assets.teapotspec,
+      diff_color: [1.0, 1.0, 1.0],
+      spec_color: [1.0, 1.0, 1.0],
+    },
+    pos: [0, 0, 0],
+    program: program,
+    data: wgl.rawModels.teapot
+  });
 
-  let x = -1;
-  let y = -10;
-  let z = 1;
+  let dlight = new WebGL.SunLight(program, 0, {
+    direction: [0, -5, -10],
+    ambient: [1.0, 1.0, 1.0],
+    diffuse: [1.0, 1.0, 1.0],
+    specular: [1.0, 1.0, 1.0],
+  });
+
+  let plight = new WebGL.PointLight(program, 0, {
+    pos: [0, -2, 0],
+    mesh: WebGL.createSphere({ radius: 0.1 })
+  })
+
 
   function animate(time) {
     wgl.background();
-    wgl.setVariable(program.uniforms.mView, wgl.mView)
+    wgl.setVariable(program.uniforms.uEyeView, wgl.cam.position)
+    wgl.setVariable(program.uniforms.uView, wgl.uView);
 
-    wgl.setStructVariables(program.uniforms, 'light', {
-      ambient: [0.5, 0.5, 0.5],
-      sun: [0.2, 0.2, 0.2],
-      dir: [x, y, z],
-    })
+    plight.setPosition([-5, Math.cos(0.5 * time / 1000) * 5, 0]);
+    plight.render();
 
-    for (const i in wgl.models) {
-      wgl.models[i].enableAttribs(program.attribs.position, program.attribs.vertNormal, program.attribs.aTexCoord);
-      wgl.useTexture(wgl.models[i].texture, program.uniforms.sampler, 0)
+    teapot.render();
 
-      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, wgl.models[i].ibo)
-      gl.drawElements(gl.TRIANGLES, wgl.models[i].nPoints, gl.UNSIGNED_SHORT, 0);
-
-      //cleanup
-      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-      gl.bindTexture(gl.TEXTURE_2D, null);
-    }
-
-    wgl.camera.doMovement(wgl.mView, time);
-
+    wgl.cam.doMovement(wgl.uView, time);
     requestAnimationFrame(animate);
   }
   animate();

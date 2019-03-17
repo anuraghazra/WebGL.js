@@ -103,7 +103,7 @@ WebGL.Model.prototype.setMaterial = function (material) {
 WebGL.Model.prototype.setProgram = function (program) {
   this.program = program;
 }
-WebGL.Model.prototype.setParam = function(variables) {
+WebGL.Model.prototype.setParam = function (variables) {
   for (const i in variables) {
     if (this.hasOwnProperty(i)) {
       this[i] = variables[i];
@@ -135,9 +135,9 @@ WebGL.Model.prototype.rotateZ = function (angle) {
 WebGL.Model.prototype.rotate = function (ax, ay, az) {
   // this.angle = angle;
   // mat4.translate(this.world, mat4.create(), this.pos);
-  mat4.rotate(this.world, this.world, ax, [1,0,0]);
-  mat4.rotate(this.world, this.world, ay, [0,1,0]);
-  mat4.rotate(this.world, this.world, az, [0,0,1]);
+  mat4.rotate(this.world, this.world, ax, [1, 0, 0]);
+  mat4.rotate(this.world, this.world, ay, [0, 1, 0]);
+  mat4.rotate(this.world, this.world, az, [0, 0, 1]);
 }
 WebGL.Model.prototype.translate = function (pos) {
   this.pos = pos;
